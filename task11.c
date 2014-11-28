@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define YES "YES"
 #define NO "NO"
@@ -7,6 +8,8 @@
 // xy coordinate for knight movement on board
 int move_x[] = { -1, -2, -2, -1, 1, 2, 2, 1 };
 int move_y[] = { -2, -1, 1, 2, 2, 1, -1, -2 };
+int size = sizeof(move_x) / sizeof(int);
+int row[size];
 
 int ** alloc_board(int m, int n) {
 	int i;
@@ -41,12 +44,13 @@ void free_board(int **board, int n) {
 }
 
 int move(int **board, int m, int n, int sx, int sy) {
-	int i, j;
+	int i, j, k;
 	int next_x, next_y;
-	int stack_x[m * n], stack_y[m * n], stack_move[m * n];
+	int stack_x[m * n], stack_y[m * n], stack_dir[m * n], stack_move[m * n][size], stack_smallest[m * n];
 
 	for (i = 0; i < m * n; i++) {
-		stack_move[i] = 0;
+		stack_dir[i] = 0;
+		stack_smallest = INT_MAX;
 	}
 
 	stack_x[0] = sx;
@@ -54,44 +58,66 @@ int move(int **board, int m, int n, int sx, int sy) {
 
 	i = 1;
 
-	while (i < m * n && stack_move[0] < ((int) (sizeof(move_x) / sizeof(int)))) {
-		j = stack_move[i - 1]++;
+	while (i < m * n && stack_dir[0] < size) {
+		for (j = 0; j < size; j++) {
+			stack_move[i - 1][j] = 0;
+		}
 
-		while (j < sizeof(move_x) / sizeof(int)) {
+		// Warnsdorff's rule
+		for (j = 0; j < size; j++) {
 			next_x = stack_x[i - 1] + move_x[j];
 			next_y = stack_y[i - 1] + move_y[j];
 
 			if (next_x < m && next_y < n && next_x >= 0 && next_y >= 0 && board[next_x][next_y] == 0) {
-				stack_x[i] = next_x;
-				stack_y[i] = next_y;
-				board[next_x][next_y] = i + 1;
+				for (k = 0; k < size; k++) {
+					next_x += move_x[k];
+					next_y += move_y[k];
+
+					if (next_x < m && next_y < n && next_x >= 0 && next_y >= 0 && board[next_x][next_y] == 0) {
+						stack_move[i - 1][j]++;
+					}
+
+					next_x -= move_x[k];
+					next_y -= move_y[k];
+				}
+			} else {
+				stack_move[i - 1][j] = -1;
+			}
+		}
+
+		stack_dir[i - 1]++;
+		for (j = 0; j < size; j++) {
+			if (stack_move[i - 1] >= 0 && stack_move[i - 1] < stack_smallest) {
+				stack_smallest[i - 1] = j;
+			}
+		}
+
+		//j = stack_dir[i - 1]++;
+
+		// Go through each valid directions for a possible tour
+		/*while (j < size) {
+			if (stack_move[i - 1][j] >= 0) {
+				stack_x[i] = stack_x[i - 1] + move_x[j];
+				stack_y[i] = stack_y[i - 1] + move_y[j];
+				board[stack_x[i]][stack_y[i]] = i + 1;
 
 				break;
 			}
 
-			j = stack_move[i - 1]++;
-		}
+			j = stack_dir[i - 1]++;
+		}*/
 
-		if (j < sizeof(move_x) / sizeof(int)) {
+		// Check backtracking criteria
+		if (j < size) {
 			i++;
 		} else if (i > 1) {
 			board[stack_x[i - 1]][stack_y[i - 1]] = 0;
-			stack_move[i - 1] = 0;
+			stack_dir[i - 1] = 0;
 			i--;
 		}
 	}
 
 	return (i == m * n) ? 1 : 0;
-}
-
-void print_board(int **board, int m, int n) {
-	int i, j;
-	for (i = 0; i < m; i++) {
-		for (j = 0; j < n; j++) {
-			printf("%3d ", board[i][j]);
-		}
-		printf("\n");
-	}
 }
 
 int main() {
