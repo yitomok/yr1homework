@@ -40,29 +40,58 @@ void free_board(int **board, int n) {
 	free(board);
 }
 
-int move(int **board, int m, int n, int sx, int sy, int moves) {
-	int i;
+int move(int **board, int m, int n, int sx, int sy) {
+	int i, j;
 	int next_x, next_y;
+	int stack_x[m * n], stack_y[m * n], stack_move[m * n];
 
-	if (moves == m * n - 1) {
-		return 1;
+	for (i = 0; i < m * n; i++) {
+		stack_move[i] = 0;
 	}
 
-	for (i = 0; i < sizeof(move_x) / sizeof(int); i++) {
-		next_x = sx + move_x[i];
-		next_y = sy + move_y[i];
+	stack_x[0] = sx;
+	stack_y[0] = sy;
 
-		if (next_x < m && next_y < n && next_x >= 0 && next_y >= 0 && board[next_x][next_y] == 0) {
-			board[next_x][next_y] = 1;
-			if (move(board, m, n, next_x, next_y, moves + 1)) {
-				return 1;
-			} else {
-				board[next_x][next_y] = 0;
+	i = 1;
+
+	while (i < m * n && stack_move[0] < ((int) (sizeof(move_x) / sizeof(int)))) {
+		j = stack_move[i - 1]++;
+
+		while (j < sizeof(move_x) / sizeof(int)) {
+			next_x = stack_x[i - 1] + move_x[j];
+			next_y = stack_y[i - 1] + move_y[j];
+
+			if (next_x < m && next_y < n && next_x >= 0 && next_y >= 0 && board[next_x][next_y] == 0) {
+				stack_x[i] = next_x;
+				stack_y[i] = next_y;
+				board[next_x][next_y] = i + 1;
+
+				break;
 			}
+
+			j = stack_move[i - 1]++;
+		}
+
+		if (j < sizeof(move_x) / sizeof(int)) {
+			i++;
+		} else if (i > 1) {
+			board[stack_x[i - 1]][stack_y[i - 1]] = 0;
+			stack_move[i - 1] = 0;
+			i--;
 		}
 	}
 
-	return 0;
+	return (i == m * n) ? 1 : 0;
+}
+
+void print_board(int **board, int m, int n) {
+	int i, j;
+	for (i = 0; i < m; i++) {
+		for (j = 0; j < n; j++) {
+			printf("%3d ", board[i][j]);
+		}
+		printf("\n");
+	}
 }
 
 int main() {
@@ -79,7 +108,7 @@ int main() {
 	board = alloc_board(m, n);
 	board[sx - 1][sy - 1] = 1;
 
-	printf(move(board, m, n, sx - 1, sy - 1, 0) ? YES : NO);
+	printf(move(board, m, n, sx - 1, sy - 1) ? YES : NO);
 
 	free_board(board, n);
 
