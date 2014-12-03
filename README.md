@@ -10,4 +10,6 @@
 <li>Tomorrow</li>
 <li>Grille Dealers</li>
 <li>Knight on a Rectangular Chessboard</li>
+<li>Copy machine for numbers</li>
+<li>Sorting Using Linked List</li>
 </ol>
