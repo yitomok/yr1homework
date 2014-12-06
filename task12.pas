@@ -1,7 +1,7 @@
 program task12;
 type nodeptr=^node;
 node=record
-        val:integer;
+        val:longint;
         next:nodeptr;
         end;
 var tmp,root:nodeptr;
