@@ -12,7 +12,7 @@ void sort(node **book) {
 	if (*book != NULL && (*book)->next != NULL) {
 		do {
 			swapped = 0;
-			for (prev = NULL, curr = *book; curr->next != NULL; prev = curr, curr = curr->next) {
+			for (prev = NULL, curr = *book; curr != NULL && curr->next != NULL; prev = curr, curr = curr->next) {
 				if (curr->val < curr->next->val) {
 					tmp = curr->next->next;
 					curr->next->next = curr;
