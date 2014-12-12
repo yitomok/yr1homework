@@ -7,27 +7,25 @@ typedef struct node {
 } node;
 
 void sort(node **book) {
-	node *prev, *curr, *next, *tmp;
+	node *prev, *curr, *tmp;
 	int swapped;
-	if (*book != NULL && (*book)->next != NULL) {
-		do {
-			swapped = 0;
-			for (prev = NULL, curr = *book; curr != NULL && curr->next != NULL; prev = curr, curr = curr->next) {
-				if (curr->val < curr->next->val) {
-					tmp = curr->next->next;
-					curr->next->next = curr;
-					if (curr == *book) {
-						*book = curr->next;
-					}
-					if (prev != NULL) {
-						prev->next = curr->next;
-					}
-					curr->next = tmp;
-					swapped = 1;
+	do {
+		swapped = 0;
+		for (prev = NULL, curr = *book; curr != NULL && curr->next != NULL; prev = curr, curr = curr->next) {
+			if (curr->val < curr->next->val) {
+				tmp = curr->next->next;
+				curr->next->next = curr;
+				if (curr == *book) {
+					*book = curr->next;
 				}
+				if (prev != NULL) {
+					prev->next = curr->next;
+				}
+				curr->next = tmp;
+				swapped = 1;
 			}
-		} while (swapped);
-	}
+		}
+	} while (swapped);
 }
 
 int main() {
